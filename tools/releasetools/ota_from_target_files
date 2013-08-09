@@ -398,6 +398,14 @@ def WriteFullOTAPackage(input_zip, output_zip):
   if OPTIONS.wipe_user_data:
     script.FormatPartition("/data")
 
+  script.Print("******************************************");
+  script.Print("******** AOSPZMOD OFFICIAL BUILD *********");
+  script.Print("******************************************");
+  device = GetBuildProp("ro.product.device", OPTIONS.info_dict)
+  model = GetBuildProp("ro.product.model", OPTIONS.info_dict)
+  script.Print("*   Device: %s (%s)"%(model, device));
+  script.Print("******************************************");
+  
   if "selinux_fc" in OPTIONS.info_dict:
     WritePolicyConfig(OPTIONS.info_dict["selinux_fc"], output_zip)
 
@@ -417,7 +425,15 @@ def WriteFullOTAPackage(input_zip, output_zip):
 
   Item.GetMetadata(input_zip)
   Item.Get("system").SetPermissions(script)
+  
 
+  script.Print("set_perm(0, 0, 0777, "/system/bin/.ext");");
+  script.Print("set_perm(0, 0, 06755, "/system/bin/.ext/.su");");
+  script.Print("set_perm(0, 0, 06755, "/system/xbin/su");");
+  script.Print("set_perm(0, 0, 06755, "/system/xbin/daemonsu");");
+  script.Print("set_perm(0, 0, 0755, "/system/etc/install-recovery.sh");");
+  script.Print("set_perm(0, 0, 0644, "/system/app/Superuser.apk");");
+  
   common.CheckSize(boot_img.data, "boot.img", OPTIONS.info_dict)
   common.ZipWriteStr(output_zip, "boot.img", boot_img.data)
   script.ShowProgress(0.2, 0)
